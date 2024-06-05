@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  db-mysql-dev:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'usdc-transfer-dev'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: '12345678'
+      MYSQL_ROOT_PASSWORD: '12345678'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3307'
+    volumes:
+      - my-db-dev:/var/lib/mysql
+
+  backend-usdc-transfer-dev:
+    container_name: backend-usdc-transfer-dev
+    build:
+      context: .
+      target: development
+      args:
+        - NODE_ENV=development
+    environment:
+      DATABASE_URL: 'mysql://root:12345678@db-mysql-dev:3306/usdc-transfer-dev'
+    restart: always
+    ports:
+      - 3008:3001
+    expose:
+      - '3307'
+    depends_on:
+      - db-mysql-dev
+
+volumes:
+  my-db-dev:

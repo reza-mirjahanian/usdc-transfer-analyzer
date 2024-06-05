@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  db-mysql-test:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: 'usdc-transfer-back-test'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: '12345678'
+      MYSQL_ROOT_PASSWORD: '12345678'
+
+    ports:
+      - '3308:3306'
+    volumes:
+      - my-db-test:/var/lib/mysql
+
+  backend-usdc-transfer-test:
+    container_name: backend-usdc-transfer-test
+    build:
+      context: .
+      target: testing
+      args:
+        - NODE_ENV=test
+    environment:
+      DATABASE_URL: 'mysql://root:12345678@db-mysql-test:3306/usdc-transfer-back-test'
+    depends_on:
+      - db-mysql-test
+
+volumes:
+  my-db-test:

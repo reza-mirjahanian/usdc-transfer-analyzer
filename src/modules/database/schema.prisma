@@ -1,0 +1,24 @@
+generator client {
+  provider        = "prisma-client-js"
+  // output          = "../../node_modules/.prisma/client"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Player {
+  userName  String   @unique @db.VarChar(50)
+  mu        Float
+  sigma     Float
+  ordinal   Float
+  lost      Int      @default(0)
+  win       Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+
+  @@index([userName])
+  @@index([ordinal])
+}
