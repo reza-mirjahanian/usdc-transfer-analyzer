@@ -2,6 +2,10 @@
 ## USDC Transfer Analyzer
 Develop a TypeScript NodeJs backend service that interacts with the Avalanche blockchain to fetch, aggregate, and analyze USDC (a stablecoin) real-time transfer data. The service should specifically extract information about USDC transactions and provide insights or summaries based on this data
 
+
+## Are there reorgs on Avalanche®?
+https://support.avax.network/en/articles/7329750-are-there-reorgs-on-avalanche
+
 ![alt text](help/screenshot.png)
 
 
@@ -81,6 +85,7 @@ http://localhost:3001/docs
 - 💡 Document the project, including setup instructions, API usage, and a brief overview of the architecture and technologies used.
 - 💡 Write unit tests for the data aggregation and API functionalities.
 - 💡 Add Swagger UI.
-- 💡 Caching with Redis
-- 💡 Include API versioning, 
-- 💡 rate-limiting, 
+- 💡 Caching with Redis.
+- 💡 Include API versioning.
+- 💡 rate-limiting. 
+- 💡 Use Kafka for queue. 
