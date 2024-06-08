@@ -15,7 +15,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('USDC transfer')
-    .setDescription('By Reza Mirjahanian')
+    .setDescription('By Reza Mir')
     .setVersion('1.0')
     .addTag('client')
     .build();
