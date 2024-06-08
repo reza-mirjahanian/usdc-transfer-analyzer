@@ -7,26 +7,38 @@ export class IndexerRepository {
   private readonly logger = new Logger(IndexerRepository.name);
   constructor(private readonly prisma: PrismaService) {}
 
-  async insertNewPlayers(list: Prisma.LogCreateInput[]) {
-    this.logger.debug(`Creating  ${list.length}  new logs`);
+  async insertNewLogs(
+    logs: Prisma.LogCreateInput[],
+    blockNumbersList: number[],
+  ) {
+    this.logger.debug(`inserting  ${logs.length}  new logs`);
+
+    // Check if logs already exist in the database
+    const existingLogs = await this.findLogsWithBlockNumbers(blockNumbersList);
+    const existingBlockNumbers = existingLogs.map((log) => log.blockNumber);
+    this.logger.debug(`Existing logs: ${existingLogs.length}`);
+    const newLogs = logs.filter(
+      (log) => !existingBlockNumbers.includes(log.blockNumber),
+    );
+    this.logger.debug(`New logs: ${newLogs.length}`);
 
     return this.prisma.log.createMany({
-      data: list,
+      data: newLogs,
       skipDuplicates: true,
     });
   }
 
-  // async findManyPlayers(userNames: string[]) {
-  //   this.logger.debug('Find players with username');
-  //   return this.prisma.player.findMany({
-  //     where: {
-  //       userName: {
-  //         in: userNames,
-  //       },
-  //     },
-  //   });
-  // }
-  //
+  async findLogsWithBlockNumbers(blockNumbersList: number[]) {
+    this.logger.debug('Find Logs with block numbers');
+    return this.prisma.log.findMany({
+      where: {
+        blockNumber: {
+          in: blockNumbersList,
+        },
+      },
+    });
+  }
+
   // async findPlayer(userName: string) {
   //   this.logger.debug(`Find a player with username: ${userName}`);
   //   return this.prisma.player.findFirst({

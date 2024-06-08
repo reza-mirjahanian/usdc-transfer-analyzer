@@ -18,11 +18,12 @@ export class IndexerService {
     this._jsonRpcProvider = new ethers.JsonRpcProvider(AVALANCHE_RPC_NODE);
   }
 
-  async getLatestBlockNumber() {
+  async getLatestFinalizedBlockNumber() {
     try {
-      return await this._jsonRpcProvider.getBlockNumber();
+      const finalizedBlock = await this._jsonRpcProvider.getBlock('finalized');
+      return finalizedBlock.number;
     } catch (error) {
-      console.error('Error in getLatestBlockNumber():', error);
+      console.error('Error in getLatestFinalizedBlockNumber():', error);
       throw new Error(error);
     }
   }
@@ -32,13 +33,16 @@ export class IndexerService {
   }
 
   async getLatestLogs() {
-    try {
-      const lastBlockNumber = await this.getLatestBlockNumber();
-      const fromBlock = lastBlockNumber - GET_LAST_LOGS_DISTANCE;
+    const lastBlockNumber = await this.getLatestFinalizedBlockNumber();
+    const fromBlock = lastBlockNumber - GET_LAST_LOGS_DISTANCE;
+    await this.saveEventLogs(fromBlock, lastBlockNumber);
+  }
 
+  async saveEventLogs(fromBlock: number, toBlock: number) {
+    try {
       const logs = await this._jsonRpcProvider.getLogs({
-        fromBlock: fromBlock,
-        toBlock: lastBlockNumber,
+        fromBlock,
+        toBlock,
         topics: [ethers.id(TRANSFER_EVENT_SIGHASH)], //fragment.format("sighash"))
         address: this.getUSDCAddress(),
       });
@@ -46,40 +50,60 @@ export class IndexerService {
       const USDC_ABI = [TRANSFER_EVENT_SIGNATURE];
       const transferEventInterface = new ethers.Interface(USDC_ABI);
 
-      const cache: Map<number, number> = new Map();
-      const dbData: Prisma.LogCreateInput[] = [];
+      const blockTimeCache: Map<number, number> = new Map();
+      const newLogs: Prisma.LogCreateInput[] = [];
+      const blockNumbersList: Set<number> = new Set();
       for (const log of logs) {
         //todo: is "removed" field important?
-        const data = transferEventInterface.parseLog(log);
-        const { blockNumber, address, transactionHash } = log;
-        const { args } = data;
+        const parsedLog = transferEventInterface.parseLog(log);
+        const {
+          blockNumber,
+          address,
+          transactionHash,
+          index,
+          transactionIndex,
+        } = log;
+        const { args } = parsedLog;
         const fromAddress = args[0];
         const toAddress = args[1];
         const transferAmount = args[2];
 
-        if (!cache.has(blockNumber)) {
+        if (!blockTimeCache.has(blockNumber)) {
           const block = await this._jsonRpcProvider.getBlock(blockNumber);
           const { timestamp } = block;
-          cache.set(blockNumber, timestamp);
+          blockTimeCache.set(blockNumber, timestamp);
         }
 
-        dbData.push({
+        blockNumbersList.add(blockNumber);
+
+        newLogs.push({
           blockNumber,
+          index,
+          transactionIndex,
           transferAmount, // Decimal for USDC is 6.
           transactionHash,
           tokenAddress: address, // USDC contract address
           fromAddress,
           toAddress,
-          timestamp: new Date(cache.get(blockNumber) * 1000),
+          timestamp: new Date(blockTimeCache.get(blockNumber) * 1000),
         });
       } //end for
 
-      await this.indexerRepository.insertNewPlayers(dbData);
+      await this.indexerRepository.insertNewLogs(newLogs, [
+        ...blockNumbersList,
+      ]);
     } catch (error) {
-      console.error('Error in getLatestLogs():', error);
+      console.error(
+        `Error in saveEventLogs() fromBlock: ${fromBlock} toBlock: ${toBlock}`,
+        error,
+      );
+      //todo: store block range in a table to retry later
       throw new Error(error);
     }
 
-    console.debug('getLatestLogs() finished successfully.');
+    console.debug(
+      'saveEventLogs() finished successfully.',
+      `fromBlock: ${fromBlock} toBlock: ${toBlock}`,
+    );
   }
 }

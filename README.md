@@ -1,12 +1,29 @@
 
 ## USDC Transfer Analyzer
-Develop a TypeScript NodeJs backend service that interacts with the Avalanche blockchain to fetch, aggregate, and analyze USDC (a stablecoin) real-time transfer data. The service should specifically extract information about USDC transactions and provide insights or summaries based on this data
 
+For indexing on-chain data, here are some useful methods:
+
+-   Using third-party APIs like Moralis or The Graph.
+-   Connecting through RPC nodes. Paid nodes can offer better performance and stability.
+-   Running a blockchain node with software like Geth.
+
+Because the Avalanche blockchain is  fast, I don't listen to real-time events. I'm crawling the latest logs every one or two seconds and inserting them into the database.
+
+We have a separate worker to crawl old logs or fix missing logs and errors. We can create another queue or database table to handle exceptions and missed data, called "retryList." Crawling old blocks would be time-consuming.
 
 ## Are there reorgs on Avalanche®?
 https://support.avax.network/en/articles/7329750-are-there-reorgs-on-avalanche
 
-![alt text](help/screenshot.png)
+
+## Avalanche Block Time = 2.04s
+Block time is the average amount of time it takes for a new block to be added to a blockchain.
+This metric is calculated as an average based on different time intervals (hour/day/week/month)
+https://chainspect.app/chain/avalanche
+
+
+------------
+
+![alt text](help/logsTable.png)
 
 
 ## Running the app with Docker
@@ -82,10 +99,13 @@ http://localhost:3001/docs
 
 
 #### Todo:
-- 💡 Document the project, including setup instructions, API usage, and a brief overview of the architecture and technologies used.
+- 💡 Run parallel worker pools with multiple RPC servers to improve speed.
 - 💡 Write unit tests for the data aggregation and API functionalities.
 - 💡 Add Swagger UI.
 - 💡 Caching with Redis.
+- 💡 Use timeout for RPC requests.
 - 💡 Include API versioning.
 - 💡 rate-limiting. 
-- 💡 Use Kafka for queue. 
+- 💡 Use Kafka for queue for data pipeline. 
+- 💡 Use a better logging system like Winston.
+- 💡 Add a health check endpoint.

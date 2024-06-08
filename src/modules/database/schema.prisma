@@ -11,15 +11,17 @@ datasource db {
 }
 
 model Log {
-  id              String   @id @default(uuid()) @db.VarChar(50)
-  blockNumber     Int
-  transferAmount  BigInt
-  transactionHash String   @db.VarChar(80)
-  fromAddress     String   @db.VarChar(50)
-  toAddress       String   @db.VarChar(50)
-  tokenAddress    String   @db.VarChar(50)
-  eventName       String   @default("transfer")
-  timestamp       DateTime @db.Timestamp(3)
+  id               String   @id @default(uuid()) @db.VarChar(50)
+  blockNumber      Int
+  index            Int
+  transactionIndex Int
+  transferAmount   BigInt
+  transactionHash  String   @db.VarChar(80)
+  fromAddress      String   @db.VarChar(50)
+  toAddress        String   @db.VarChar(50)
+  tokenAddress     String   @db.VarChar(50)
+  eventName        String   @default("transfer")
+  timestamp        DateTime @db.Timestamp(3)
 
   @@index([fromAddress])
   @@index([toAddress])
