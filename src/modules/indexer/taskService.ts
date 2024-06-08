@@ -15,12 +15,12 @@ export class TasksService {
   @Interval(RUN_LATEST_LOGS_WORKER_INTERVAL)
   async runGetLatestLogsWorker() {
     this.logger.verbose('Getting latest logs worker started...');
-    await this.indexerService.getLatestLogs();
+    await this.indexerService.findLatestLogs();
   }
 
   @Interval(RUN_REPAIR_OLD_LOGS_WORKER_INTERVAL)
   async runRepairOldLogsWorker() {
     this.logger.verbose('Repairing old logs worker started...');
-    await this.indexerService.getLatestLogs();
+    await this.indexerService.findMissedLogs();
   }
 }

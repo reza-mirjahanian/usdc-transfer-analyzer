@@ -15,6 +15,13 @@ CREATE TABLE "Log" (
     CONSTRAINT "Log_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Config" (
+    "key" VARCHAR(50) NOT NULL,
+    "value" INTEGER NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL
+);
+
 -- CreateIndex
 CREATE INDEX "Log_fromAddress_idx" ON "Log"("fromAddress");
 
@@ -26,3 +33,6 @@ CREATE INDEX "Log_timestamp_idx" ON "Log"("timestamp");
 
 -- CreateIndex
 CREATE INDEX "Log_blockNumber_idx" ON "Log"("blockNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Config_key_key" ON "Config"("key");

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   AVALANCHE_RPC_NODE,
   AVALANCHE_USDC_ADDRESS,
@@ -6,13 +6,19 @@ import {
   TRANSFER_EVENT_SIGNATURE,
 } from '../../constants/avalanche';
 import { ethers } from 'ethers';
-import { GET_LAST_LOGS_DISTANCE } from '../../constants/server';
+import {
+  GET_LAST_LOGS_DISTANCE,
+  REPAIR_OLD_LOGS_STEP,
+  START_BLOCK_KEY,
+  STARTING_BLOCK_NUMBER,
+} from '../../constants/server';
 import { IndexerRepository } from './indexer.repository';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class IndexerService {
   private readonly _jsonRpcProvider: ethers.JsonRpcProvider;
+  private readonly logger = new Logger(IndexerService.name);
 
   constructor(private readonly indexerRepository: IndexerRepository) {
     this._jsonRpcProvider = new ethers.JsonRpcProvider(AVALANCHE_RPC_NODE);
@@ -23,7 +29,7 @@ export class IndexerService {
       const finalizedBlock = await this._jsonRpcProvider.getBlock('finalized');
       return finalizedBlock.number;
     } catch (error) {
-      console.error('Error in getLatestFinalizedBlockNumber():', error);
+      this.logger.error('Error in getLatestFinalizedBlockNumber():', error);
       throw new Error(error);
     }
   }
@@ -32,9 +38,35 @@ export class IndexerService {
     return ethers.getAddress(AVALANCHE_USDC_ADDRESS);
   }
 
-  async getLatestLogs() {
+  async findMissedLogs() {
+    let fromBlock: number;
+    let toBlock: number;
+    try {
+      fromBlock = await this.indexerRepository.getConfig(START_BLOCK_KEY);
+      if (!fromBlock) {
+        fromBlock = STARTING_BLOCK_NUMBER;
+      }
+      toBlock = fromBlock + REPAIR_OLD_LOGS_STEP;
+      this.logger.debug(
+        `try findMissedLogs() fromBlock: ${fromBlock} toBlock: ${toBlock}`,
+      );
+      await this.saveEventLogs(fromBlock, toBlock);
+      await this.indexerRepository.saveConfig(START_BLOCK_KEY, toBlock + 1);
+    } catch (error) {
+      //todo store block range in a table to retry later
+      this.logger.error(
+        `Error in findMissedLogs ${fromBlock}-${toBlock}`,
+        error,
+      );
+    }
+  }
+
+  async findLatestLogs() {
     const lastBlockNumber = await this.getLatestFinalizedBlockNumber();
     const fromBlock = lastBlockNumber - GET_LAST_LOGS_DISTANCE;
+    this.logger.debug(
+      `try findLatestLogs() fromBlock: ${fromBlock} toBlock: ${lastBlockNumber}`,
+    );
     await this.saveEventLogs(fromBlock, lastBlockNumber);
   }
 
@@ -93,7 +125,7 @@ export class IndexerService {
         ...blockNumbersList,
       ]);
     } catch (error) {
-      console.error(
+      this.logger.error(
         `Error in saveEventLogs() fromBlock: ${fromBlock} toBlock: ${toBlock}`,
         error,
       );
@@ -101,7 +133,7 @@ export class IndexerService {
       throw new Error(error);
     }
 
-    console.debug(
+    this.logger.debug(
       'saveEventLogs() finished successfully.',
       `fromBlock: ${fromBlock} toBlock: ${toBlock}`,
     );

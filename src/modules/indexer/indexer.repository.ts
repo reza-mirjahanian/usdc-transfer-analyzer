@@ -39,14 +39,34 @@ export class IndexerRepository {
     });
   }
 
-  // async findPlayer(userName: string) {
-  //   this.logger.debug(`Find a player with username: ${userName}`);
-  //   return this.prisma.player.findFirst({
-  //     where: {
-  //       userName,
-  //     },
-  //   });
-  // }
+  async getConfig(key: string) {
+    const record = await this.prisma.config.findFirst({
+      where: {
+        key,
+      },
+    });
+    if (record) {
+      return record.value;
+    } else {
+      return null;
+    }
+  }
+
+  async saveConfig(key: string, value: number) {
+    return this.prisma.config.upsert({
+      where: {
+        key,
+      },
+      update: {
+        value,
+      },
+      create: {
+        key,
+        value,
+      },
+    });
+  }
+
   //
   // async findTopPlayers(count: number) {
   //   if (count < 1 || count > 1000) {

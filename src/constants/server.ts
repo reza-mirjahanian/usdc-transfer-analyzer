@@ -15,3 +15,8 @@ export const RUN_REPAIR_OLD_LOGS_WORKER_INTERVAL =
 // STARTING_BLOCK_NUMBER is the block number from which the indexer will start indexing the logs.
 export const STARTING_BLOCK_NUMBER =
   Number(process.env.STARTING_BLOCK_NUMBER) || 46461979;
+
+export const REPAIR_OLD_LOGS_STEP =
+  Number(process.env.REPAIR_OLD_LOGS_STEP) || 10;
+
+export const START_BLOCK_KEY = 'startedBlock';

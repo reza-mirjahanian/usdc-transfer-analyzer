@@ -28,3 +28,9 @@ model Log {
   @@index([timestamp])
   @@index([blockNumber])
 }
+
+model Config {
+  key       String   @unique @db.VarChar(50)
+  value     Int
+  updatedAt DateTime @updatedAt
+}
