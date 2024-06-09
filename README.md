@@ -23,7 +23,10 @@ https://chainspect.app/chain/avalanche
 
 ------------
 
+![alt text](help/swagger.png)
 ![alt text](help/logsTable.png)
+![alt text](help/totalusdc.png)
+![alt text](help/leader-board.png)
 
 
 ## Running the app with Docker
@@ -96,12 +99,12 @@ http://localhost:3001/docs
 #### Done:
 - ✅ Docker
 - ✅ Husky for git commits.
+- ✅ Add Swagger UI.
 
 
 #### Todo:
 - 💡 Run parallel worker pools with multiple RPC servers to improve speed.
 - 💡 Write unit tests for the data aggregation and API functionalities.
-- 💡 Add Swagger UI.
 - 💡 Caching with Redis.
 - 💡 Use timeout for RPC requests.
 - 💡 Include API versioning.

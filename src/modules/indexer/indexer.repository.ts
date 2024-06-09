@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 @Injectable()
 export class IndexerRepository {
   private readonly logger = new Logger(IndexerRepository.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async insertNewLogs(
@@ -67,18 +68,92 @@ export class IndexerRepository {
     });
   }
 
-  //
-  // async findTopPlayers(count: number) {
-  //   if (count < 1 || count > 1000) {
-  //     // Validation
-  //     count = 10;
-  //   }
-  //   this.logger.debug(`Find top ${count} players`);
-  //   return this.prisma.player.findMany({
-  //     orderBy: {
-  //       ordinal: 'desc',
-  //     },
-  //     take: count,
-  //   });
-  // }
+  async getTotalAmountUSDC(from: Date, to: Date) {
+    this.logger.debug(`Get total amount USDC from ${from} to ${to}`);
+    const { _sum } = await this.prisma.log.aggregate({
+      _sum: {
+        transferAmount: true,
+      },
+      where: {
+        timestamp: {
+          gte: from,
+          lte: to,
+        },
+      },
+    });
+    return {
+      total: (_sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+      from,
+      to,
+    };
+  }
+
+  async getLeaderBoardStats(from: Date, to: Date) {
+    this.logger.debug(`Leader board data from ${from} to ${to}`);
+    const fromAddressData = await this.prisma.log.groupBy({
+      by: ['fromAddress'],
+      _sum: {
+        transferAmount: true,
+      },
+      _count: {
+        fromAddress: true,
+      },
+      where: {
+        timestamp: {
+          gte: from,
+          lte: to,
+        },
+      },
+      orderBy: {
+        _sum: {
+          transferAmount: 'desc',
+        },
+      },
+      take: 10,
+    });
+    const fromStats = fromAddressData.map((item) => {
+      return {
+        address: item.fromAddress,
+        total: (item._sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+        count: item._count.fromAddress,
+      };
+    });
+
+    const toAddressData = await this.prisma.log.groupBy({
+      by: ['toAddress'],
+      _sum: {
+        transferAmount: true,
+      },
+      _count: {
+        toAddress: true,
+      },
+      where: {
+        timestamp: {
+          gte: from,
+          lte: to,
+        },
+      },
+      orderBy: {
+        _sum: {
+          transferAmount: 'desc',
+        },
+      },
+      take: 10,
+    });
+
+    const toStats = toAddressData.map((item) => {
+      return {
+        address: item.toAddress,
+        total: (item._sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+        count: item._count.toAddress,
+      };
+    });
+
+    return {
+      fromStats,
+      toStats,
+      from,
+      to,
+    };
+  }
 }

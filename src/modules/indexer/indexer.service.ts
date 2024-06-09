@@ -138,4 +138,18 @@ export class IndexerService {
       `fromBlock: ${fromBlock} toBlock: ${toBlock}`,
     );
   }
+
+  async getTotalAmountUSDC(from: number, to: number) {
+    return this.indexerRepository.getTotalAmountUSDC(
+      new Date(from * 1000),
+      new Date(to * 1000),
+    );
+  }
+
+  async getLeaderBoardStats(from: number, to: number) {
+    return this.indexerRepository.getLeaderBoardStats(
+      new Date(from * 1000),
+      new Date(to * 1000),
+    );
+  }
 }
