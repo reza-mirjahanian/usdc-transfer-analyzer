@@ -82,7 +82,7 @@ export class IndexerRepository {
       },
     });
     return {
-      total: (_sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+      total: (_sum.transferAmount / 1000000n).toString() || 0, // Decimal for USDC is 6.
       from,
       to,
     };
@@ -114,7 +114,7 @@ export class IndexerRepository {
     const fromStats = fromAddressData.map((item) => {
       return {
         address: item.fromAddress,
-        total: (item._sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+        total: (item._sum.transferAmount / 1000000n).toString() || 0, // Decimal for USDC is 6.
         count: item._count.fromAddress,
       };
     });
@@ -144,7 +144,7 @@ export class IndexerRepository {
     const toStats = toAddressData.map((item) => {
       return {
         address: item.toAddress,
-        total: (item._sum.transferAmount / 6n).toString() || 0, // Decimal for USDC is 6.
+        total: (item._sum.transferAmount / 1000000n).toString() || 0, // Decimal for USDC is 6.
         count: item._count.toAddress,
       };
     });

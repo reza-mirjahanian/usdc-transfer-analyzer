@@ -112,3 +112,4 @@ http://localhost:3001/docs
 - 💡 Use Kafka for queue for data pipeline. 
 - 💡 Use a better logging system like Winston.
 - 💡 Add a health check endpoint.
+- 💡 Test Decimal.js instead of Bigint
