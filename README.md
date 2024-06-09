@@ -100,11 +100,12 @@ http://localhost:3001/docs
 - ✅ Docker
 - ✅ Husky for git commits.
 - ✅ Add Swagger UI.
+- ✅ Write unit tests .
 
 
 #### Todo:
 - 💡 Run parallel worker pools with multiple RPC servers to improve speed.
-- 💡 Write unit tests for the data aggregation and API functionalities.
+- 💡 Write e2e tests.
 - 💡 Caching with Redis.
 - 💡 Use timeout for RPC requests.
 - 💡 Include API versioning.
