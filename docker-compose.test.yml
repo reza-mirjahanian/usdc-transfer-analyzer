@@ -1,18 +1,20 @@
 version: '3.7'
 
 services:
-  db-mysql-test:
-    image: mysql:5.7
+  db-postgres-test:
+    image: postgres
+    restart: always
     environment:
-      MYSQL_DATABASE: 'usdc-transfer-back-test'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: '12345678'
-      MYSQL_ROOT_PASSWORD: '12345678'
-
+      POSTGRES_DB: 'usdc-transfer-test'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: '12345678'
+      PGDATA: /data/postgres
     ports:
-      - '3308:3306'
+      - '5452:5432'
+    expose:
+      - '5452'
     volumes:
-      - my-db-test:/var/lib/mysql
+      - postgres-db-test:/data/postgres
 
   backend-usdc-transfer-test:
     container_name: backend-usdc-transfer-test
@@ -22,9 +24,9 @@ services:
       args:
         - NODE_ENV=test
     environment:
-      DATABASE_URL: 'mysql://root:12345678@db-mysql-test:3306/usdc-transfer-back-test'
+      DATABASE_URL: 'postgresql://user:12345678@db-postgres-test:5432/usdc-transfer-test'
     depends_on:
-      - db-mysql-test
+      - db-postgres-test
 
 volumes:
-  my-db-test:
+  postgres-db-test:

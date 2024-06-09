@@ -1,20 +1,20 @@
 version: '3.7'
 
 services:
-  db-mysql-dev:
-    image: mysql:5.7
+  db-postgres-dev:
+    image: postgres
     restart: always
     environment:
-      MYSQL_DATABASE: 'usdc-transfer-dev'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: '12345678'
-      MYSQL_ROOT_PASSWORD: '12345678'
+      POSTGRES_DB: 'usdc-transfer-dev'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: '12345678'
+      PGDATA: /data/postgres
     ports:
-      - '3307:3306'
+      - '5442:5432'
     expose:
-      - '3307'
+      - '5432'
     volumes:
-      - my-db-dev:/var/lib/mysql
+      - postgres-db-dev:/data/postgres
 
   backend-usdc-transfer-dev:
     container_name: backend-usdc-transfer-dev
@@ -24,14 +24,14 @@ services:
       args:
         - NODE_ENV=development
     environment:
-      DATABASE_URL: 'mysql://root:12345678@db-mysql-dev:3306/usdc-transfer-dev'
+      DATABASE_URL: 'postgresql://user:12345678@db-postgres-dev:5432/usdc-transfer-dev'
     restart: always
     ports:
       - 3008:3001
     expose:
       - '3307'
     depends_on:
-      - db-mysql-dev
+      - db-postgres-dev
 
 volumes:
-  my-db-dev:
+  postgres-db-dev:
