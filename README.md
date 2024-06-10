@@ -53,8 +53,8 @@ $ pnpm install
 ###### Database
 
 ```bash
-# MySQL URL example in .env file
-$ DATABASE_URL=mysql://root:12345678@localhost:3306/usdc-transfer-dev
+# Database URL example in .env file
+$ DATABASE_URL=DATABASE_URL=postgresql://dev:12345678@localhost:5432/dev
 
 # Prisma init
 $ pnpx prisma generate

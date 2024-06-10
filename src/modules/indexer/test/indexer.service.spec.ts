@@ -58,7 +58,7 @@ describe('IndexerService', () => {
     const endBlock = startBlock + REPAIR_OLD_LOGS_STEP;
 
     jest.spyOn(repository, 'getConfig').mockResolvedValue(startBlock);
-    jest.spyOn(service, 'saveEventLogs');
+    jest.spyOn(service, 'saveEventLogs').mockResolvedValue(null);
 
     await service.findMissedLogs();
 
@@ -78,7 +78,7 @@ describe('IndexerService', () => {
     jest
       .spyOn(service, 'getLatestFinalizedBlockNumber')
       .mockResolvedValue(lastBlockNumber);
-    jest.spyOn(service, 'saveEventLogs');
+    jest.spyOn(service, 'saveEventLogs').mockResolvedValue(null);
 
     await service.findLatestLogs();
 
